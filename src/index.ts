@@ -1,12 +1,18 @@
-export default class Hello {
-  public world: string;
+import { RequestContext } from '@loopback/rest';
+import MiddlewareRunner, {
+  DeepArray,
+  ErrorRequestHandler,
+  NextFunction,
+  RequestHandler
+} from 'middleware-runner';
 
-  constructor() {
-    this.world = 'texas';
-  }
+export default async function middleware<Result>(
+  context: RequestContext,
+  unflattenedMiddlewares: DeepArray<RequestHandler | ErrorRequestHandler>
+): Promise<Result> {
+  const { request, response } = context;
+  const middlewareRunner = new MiddlewareRunner<Result>(unflattenedMiddlewares);
+  return middlewareRunner.run(request, response);
 }
 
-const logger = console;
-
-const hello = new Hello();
-logger.info(`Howdy, ${hello.world}!`);
+export { NextFunction };
