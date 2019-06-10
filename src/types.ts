@@ -1,13 +1,21 @@
 import { BindingKey } from '@loopback/context';
 import { MetadataAccessor } from '@loopback/metadata';
-import { Middlewares } from 'middleware-runner';
+import { MiddlewareChain } from 'middleware-runner';
 import { RequestContext } from '@loopback/rest';
 
-export interface MiddlewareOptions {}
+export interface MiddlewareConfig {
+  blacklist?: string[];
+  whitelist?: string[];
+}
+
+export interface MiddlewareChains {
+  [key: string]: MiddlewareChain;
+}
 
 export type MiddlewareAction<Result> = (
   context: RequestContext,
-  middlewares: Middlewares
+  middlewareChains: MiddlewareChains,
+  config?: MiddlewareConfig
 ) => Promise<Result>;
 
 export interface MiddlewareMetadata {

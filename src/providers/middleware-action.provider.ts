@@ -1,9 +1,12 @@
 import { RequestContext } from '@loopback/rest';
 import { inject, Provider, Getter } from '@loopback/context';
-import { runMiddleware, Middlewares } from 'middleware-runner';
+import { oc } from 'ts-optchain.macro';
+import { runMiddleware } from 'middleware-runner';
 import {
+  MiddlewareChains,
   MiddlewareAction,
   MiddlewareBindings,
+  MiddlewareConfig,
   MiddlewareMetadata
 } from '../types';
 
@@ -15,15 +18,51 @@ export class MiddlewareActionProvider<Result>
   ) {}
 
   value(): MiddlewareAction<Result> {
-    return (context: RequestContext, middlewares: Middlewares) =>
-      this.action(context, middlewares);
+    return (...params) => this.action(...params);
   }
 
   async action(
     context: RequestContext,
-    middlewares: Middlewares
+    middlewareChains: MiddlewareChains,
+    config?: MiddlewareConfig
   ): Promise<Result> {
     const { request, response } = context;
-    return runMiddleware(request, response, middlewares);
+    const middlewareMetadata:
+      | MiddlewareMetadata
+      | undefined = await this.getMiddlewareMetadata();
+    let filteredMiddlewareChains = filter<MiddlewareChains>(
+      middlewareChains,
+      oc(config).whitelist(),
+      oc(config).blacklist()
+    );
+    filteredMiddlewareChains = filter<MiddlewareChains>(
+      filteredMiddlewareChains,
+      oc(middlewareMetadata).whitelist(),
+      oc(middlewareMetadata).blacklist()
+    );
+    return runMiddleware(
+      request,
+      response,
+      Object.entries(filteredMiddlewareChains).map(f => f[1])
+    );
   }
+}
+
+function filter<Data extends { [key: string]: any }>(
+  data: Data,
+  whitelist?: string[],
+  blacklist?: string[]
+): Data {
+  let filteredData = {} as Data;
+  if (blacklist) filteredData = { ...data };
+  (blacklist || []).forEach((blacklistItem: string) => {
+    delete filteredData[blacklistItem];
+  });
+  (whitelist || []).forEach((whitelistItem: string) => {
+    if (data[whitelistItem]) {
+      // @ts-ignore
+      filteredData[whitelistItem] = data[whitelistItem];
+    }
+  });
+  return filteredData;
 }
