@@ -1,79 +1,25 @@
 {
   "name": "lb4-middleware",
-  "version": "0.0.6",
   "description": "run express middleware in loopback 4",
-  "keywords": [
-    "lb4-middleware",
-    "middleware",
-    "loopback",
-    "loopback-4",
-    "express",
-    "4"
-  ],
-  "homepage": "https://github.com/codejamninja/lb4-middleware",
-  "bugs": {
-    "url": "https://github.com/codejamninja/lb4-middleware/issues",
-    "email": "jam@codejam.ninja"
-  },
-  "license": "MIT",
-  "author": {
-    "name": "Jam Risser",
-    "email": "jam@codejam.ninja",
-    "url": "https://codejam.ninja"
-  },
+  "version": "0.0.1",
   "files": [
-    "lib"
+    "packages"
   ],
-  "main": "lib/index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/codejamninja/lb4-middleware"
-  },
   "scripts": {
-    "build": "npm run test && babel src -d lib --extensions \".ts,.tsx\" --source-maps inline && tsc -d --emitDeclarationOnly",
-    "clean": "git clean -fXd -e \\!node_modules -e \\!node_modules/**/* && jest --clearCache",
-    "clean:purge": "jest --clearCache && git clean -fXd",
-    "format": "prettier --write ./**/*.{json,md,scss,yaml,yml,js,jsx,ts,tsx} --ignore-path .gitignore",
-    "lint": "npm run format && tsc --allowJs --noEmit && eslint --ext .ts,.tsx ./",
-    "lint:fix": "npm run format && tsc --noEmit && eslint --ext .ts,.tsx --fix ./",
-    "prepublish": "npm run build",
-    "start": "babel-node src --extensions \".ts,.tsx\"",
-    "test": "npm run lint && jest"
-  },
-  "dependencies": {
-    "@loopback/context": "^1.19.0",
-    "@loopback/core": "^1.8.1",
-    "@loopback/metadata": "^1.2.1",
-    "@loopback/rest": "^1.15.0",
-    "core-js": "^3.1.3",
-    "middleware-runner": "^0.2.1",
-    "ts-optchain.macro": "^1.1.5"
+    "bootstrap": "lerna bootstrap && npm run link",
+    "bootstrap:hoist": "lerna bootstrap --hoist && npm run link",
+    "clean": "lerna clean -y",
+    "clean:purge": "git clean -fXd",
+    "format": "lerna run format",
+    "lerna": "lerna",
+    "link": "lerna link",
+    "ls": "lerna ls",
+    "publish": "lerna publish",
+    "start": "cd example && npm run start",
+    "test": "lerna run test"
   },
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.5",
-    "@babel/node": "^7.4.5",
-    "@babel/preset-typescript": "^7.3.3",
-    "@types/jest": "^24.0.13",
-    "@types/node": "^12.0.7",
-    "@typescript-eslint/eslint-plugin": "^1.9.0",
-    "@typescript-eslint/parser": "^1.9.0",
-    "babel-preset-jam": "^0.4.1",
-    "eslint": "^5.16.0",
-    "eslint-config-airbnb-typescript": "^4.0.0",
-    "eslint-config-jam": "^0.2.12",
-    "jest": "^24.8.0",
-    "tsc": "^1.20150623.0",
-    "typescript": "^3.5.1"
+    "lerna": "^3.14.1"
   },
-  "engines": {
-    "node": ">=6.0.0"
-  },
-  "eslintIgnore": [
-    "lib"
-  ],
-  "jest": {
-    "testRegex": "tests(/|/.*/)[^_/]*[jt]sx?$",
-    "verbose": true
-  }
+  "license": "MIT"
 }

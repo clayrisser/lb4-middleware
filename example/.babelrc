@@ -1,0 +1,16 @@
+{
+  "presets": [
+    "babel-preset-jam",
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "6"
+        },
+        "useBuiltIns": "usage",
+        "corejs": 3
+      }
+    ],
+    "@babel/preset-typescript"
+  ]
+}
