@@ -5,6 +5,7 @@ import { RequestContext } from '@loopback/rest';
 
 export interface MiddlewareConfig {
   blacklist?: string[];
+  middlewareRecords?: MiddlewareRecord[];
   whitelist?: string[];
 }
 
@@ -19,9 +20,7 @@ export interface MiddlewareRecord {
 }
 
 export type MiddlewareAction<Result> = (
-  context: RequestContext,
-  middlewareRecords: MiddlewareRecord[],
-  config?: MiddlewareConfig
+  context: RequestContext
 ) => Promise<Result>;
 
 export interface MiddlewareMetadata {
@@ -40,6 +39,11 @@ export const MiddlewareBindings = {
   Metadata: {
     MIDDLEWARE: BindingKey.create<MiddlewareMetadata | undefined>(
       'lb4-middleware.metadata.middleware'
+    )
+  },
+  Config: {
+    MIDDLEWARE: BindingKey.create<MiddlewareConfig>(
+      'lb4-middleware.config.middleware'
     )
   }
 };

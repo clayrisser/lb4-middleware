@@ -13,6 +13,8 @@ import {
 export class MiddlewareActionProvider<Result>
   implements Provider<MiddlewareAction<Result>> {
   constructor(
+    @inject(MiddlewareBindings.Config.MIDDLEWARE)
+    public middlewareConfig: MiddlewareConfig,
     @inject.getter(MiddlewareBindings.Metadata.MIDDLEWARE)
     public getMiddlewareMetadata: Getter<MiddlewareMetadata>
   ) {}
@@ -21,19 +23,15 @@ export class MiddlewareActionProvider<Result>
     return (...params) => this.action(...params);
   }
 
-  async action(
-    context: RequestContext,
-    middlewareRecords: MiddlewareRecord[],
-    config?: MiddlewareConfig
-  ): Promise<Result> {
+  async action(context: RequestContext): Promise<Result> {
     const { request, response } = context;
     const middlewareMetadata:
       | MiddlewareMetadata
       | undefined = await this.getMiddlewareMetadata();
     let filteredMiddlewareRecords = filterRecords<MiddlewareRecord>(
-      middlewareRecords,
-      oc(config).blacklist([]),
-      oc(config).whitelist([])
+      oc(this.middlewareConfig).middlewareRecords([]),
+      oc(this.middlewareConfig).blacklist([]),
+      oc(this.middlewareConfig).whitelist([])
     );
     filteredMiddlewareRecords = filterRecords<MiddlewareRecord>(
       filteredMiddlewareRecords,
