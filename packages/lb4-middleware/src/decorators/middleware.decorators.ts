@@ -1,5 +1,5 @@
 import { MiddlewareChain } from 'middleware-runner';
-import { oc } from 'ts-optchain.macro';
+import { oc } from 'ts-optchain';
 import {
   MetadataInspector,
   Constructor,

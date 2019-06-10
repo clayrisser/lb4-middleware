@@ -1,6 +1,6 @@
 import { RequestContext } from '@loopback/rest';
 import { inject, Provider, Getter } from '@loopback/context';
-import { oc } from 'ts-optchain.macro';
+import { oc } from 'ts-optchain';
 import { runMiddleware } from 'middleware-runner';
 import {
   MiddlewareAction,
@@ -13,9 +13,9 @@ import {
 export class MiddlewareActionProvider<Result>
   implements Provider<MiddlewareAction<Result>> {
   constructor(
-    @inject(MiddlewareBindings.Config.MIDDLEWARE)
+    @inject(MiddlewareBindings.Providers.MIDDLEWARE_CONFIG)
     public middlewareConfig: MiddlewareConfig,
-    @inject.getter(MiddlewareBindings.Metadata.MIDDLEWARE)
+    @inject.getter(MiddlewareBindings.Providers.MIDDLEWARE_METADATA)
     public getMiddlewareMetadata: Getter<MiddlewareMetadata>
   ) {}
 
@@ -40,7 +40,7 @@ export class MiddlewareActionProvider<Result>
     );
     return runMiddleware(request, response, [
       ...filteredMiddlewareRecords.map(record => record.chain).flat(),
-      ...middlewareMetadata.middlewareChains
+      ...oc(middlewareMetadata).middlewareChains([])
     ]);
   }
 }

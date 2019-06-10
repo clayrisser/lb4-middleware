@@ -1,5 +1,12 @@
+import {
+  MiddlewareConfig,
+  MiddlewareRecord,
+  NextFunction
+} from 'lb4-middleware';
 import { Provider } from '@loopback/context';
-import { MiddlewareConfig, MiddlewareRecord } from '../types';
+import { Request, Response } from '@loopback/rest';
+
+const logger = console;
 
 export class MiddlewareConfigProvider implements Provider<MiddlewareConfig> {
   constructor() {}
@@ -7,8 +14,13 @@ export class MiddlewareConfigProvider implements Provider<MiddlewareConfig> {
   value(): MiddlewareConfig {
     const middlewareRecords: MiddlewareRecord[] = [
       {
-        keys: [],
-        chain: []
+        keys: ['hello'],
+        chain: [
+          (_req: Request, _res: Response, next: NextFunction) => {
+            logger.info('hello middleware');
+            return next();
+          }
+        ]
       }
     ];
     const blacklist: string[] = [];

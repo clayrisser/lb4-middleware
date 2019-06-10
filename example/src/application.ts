@@ -1,6 +1,7 @@
 import * as path from 'path';
 import { ApplicationConfig } from '@loopback/core';
 import { BootMixin } from '@loopback/boot';
+import { MiddlewareComponent, MiddlewareBindings } from 'lb4-middleware';
 import { RepositoryMixin } from '@loopback/repository';
 import { RestApplication } from '@loopback/rest';
 import { ServiceMixin } from '@loopback/service-proxy';
@@ -9,6 +10,7 @@ import {
   RestExplorerComponent
 } from '@loopback/rest-explorer';
 import * as pkg from '../package.json';
+import { MiddlewareConfigProvider } from './providers';
 import { MySequence } from './sequence';
 
 export class Lb4MiddlewareApplication extends BootMixin(
@@ -52,11 +54,13 @@ export class Lb4MiddlewareApplication extends BootMixin(
   }
 
   addComponents() {
-    return null;
+    this.component(MiddlewareComponent);
   }
 
   addBindings() {
-    return null;
+    this.bind(MiddlewareBindings.Providers.MIDDLEWARE_CONFIG).toProvider(
+      MiddlewareConfigProvider
+    );
   }
 
   addSequences() {

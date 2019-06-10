@@ -1,6 +1,6 @@
 import { BindingKey } from '@loopback/context';
 import { MetadataAccessor } from '@loopback/metadata';
-import { MiddlewareChain } from 'middleware-runner';
+import { MiddlewareChain, NextFunction } from 'middleware-runner';
 import { RequestContext } from '@loopback/rest';
 
 export interface MiddlewareConfig {
@@ -19,7 +19,7 @@ export interface MiddlewareRecord {
   chain: MiddlewareChain;
 }
 
-export type MiddlewareAction<Result> = (
+export type MiddlewareAction<Result = any> = (
   context: RequestContext
 ) => Promise<Result>;
 
@@ -36,14 +36,17 @@ export const MiddlewareBindings = {
       MethodDecorator
     >('lb4-middleware.accessors.middleware-metadata')
   },
-  Metadata: {
-    MIDDLEWARE: BindingKey.create<MiddlewareMetadata | undefined>(
-      'lb4-middleware.metadata.middleware'
-    )
-  },
-  Config: {
-    MIDDLEWARE: BindingKey.create<MiddlewareConfig>(
-      'lb4-middleware.config.middleware'
+  Providers: {
+    MIDDLEWARE_ACTION: BindingKey.create<MiddlewareAction>(
+      'lb4-middleware.providers.middleware-action'
+    ),
+    MIDDLEWARE_CONFIG: BindingKey.create<MiddlewareConfig>(
+      'lb4-middleware.providers.middleware-config'
+    ),
+    MIDDLEWARE_METADATA: BindingKey.create<MiddlewareMetadata | undefined>(
+      'lb4-middleware.providers.middleware-metadata'
     )
   }
 };
+
+export { MiddlewareChain, NextFunction };

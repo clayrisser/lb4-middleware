@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "incremental": true,
-    "lib": ["ESNext"],
+    "lib": ["ES2019"],
     "module": "CommonJS",
     "moduleResolution": "Node",
     "outDir": "lib",
