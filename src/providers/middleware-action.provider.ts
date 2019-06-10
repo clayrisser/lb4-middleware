@@ -40,11 +40,10 @@ export class MiddlewareActionProvider<Result>
       oc(middlewareMetadata).blacklist([]),
       oc(middlewareMetadata).whitelist([])
     );
-    return runMiddleware(
-      request,
-      response,
-      filteredMiddlewareRecords.map(record => record.chain).flat()
-    );
+    return runMiddleware(request, response, [
+      ...filteredMiddlewareRecords.map(record => record.chain).flat(),
+      ...middlewareMetadata.middlewareChains
+    ]);
   }
 }
 

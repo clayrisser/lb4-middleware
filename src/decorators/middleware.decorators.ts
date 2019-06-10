@@ -41,8 +41,8 @@ export function middleware(
       ? (oc(config).whitelist() as string[])
       : [];
   } else {
-    blacklist = Array.isArray(oc(config).whitelist())
-      ? (oc(config).whitelist() as string[])
+    blacklist = Array.isArray(oc(config).blacklist())
+      ? (oc(config).blacklist() as string[])
       : [];
     whitelist = [
       ...recordKeys,
