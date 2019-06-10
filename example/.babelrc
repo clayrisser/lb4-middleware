@@ -1,8 +1,7 @@
 {
   "presets": [
-    "babel-preset-jam",
     [
-      "@babel/preset-env",
+      "babel-preset-jam",
       {
         "targets": {
           "node": "6"
