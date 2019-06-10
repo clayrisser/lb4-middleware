@@ -1,15 +1,61 @@
+import { MiddlewareChain } from 'middleware-runner';
+import { oc } from 'ts-optchain.macro';
 import {
   MetadataInspector,
   Constructor,
   MethodDecoratorFactory
 } from '@loopback/context';
-import { MiddlewareMetadata, MiddlewareBindings } from '../types';
+import {
+  MiddlewareBindings,
+  MiddlewareDecoratorConfig,
+  MiddlewareMetadata
+} from '../types';
 
-export function middleware(...whitelist: string[]) {
+export function middleware(
+  ...params: (string | MiddlewareChain | MiddlewareDecoratorConfig)[]
+) {
+  const middlewareChains: MiddlewareChain[] = [];
+  const recordKeys: string[] = [];
+  const lastParam = params[params.length - 1];
+  let config: MiddlewareDecoratorConfig = {};
+  if (typeof lastParam === 'object' && !Array.isArray(lastParam)) {
+    config = params.pop() as MiddlewareDecoratorConfig;
+  }
+  params.forEach(param => {
+    if (typeof param === 'string') {
+      recordKeys.push(param);
+    } else if (typeof param === 'function' || Array.isArray(param)) {
+      middlewareChains.push(param);
+    } else {
+      throw new Error("only last param can be 'MiddlewareDecoratorConfig'");
+    }
+  });
+  let blacklist: string[] = [];
+  let whitelist: string[] = [];
+  if (oc(config).whitelist() === true && oc(config).blacklist() === true) {
+    throw new Error("whitelist and blacklist cannot both be 'true'");
+  }
+  if (oc(config).blacklist() === true) {
+    blacklist = recordKeys;
+    whitelist = Array.isArray(oc(config).whitelist())
+      ? (oc(config).whitelist() as string[])
+      : [];
+  } else {
+    blacklist = Array.isArray(oc(config).whitelist())
+      ? (oc(config).whitelist() as string[])
+      : [];
+    whitelist = [
+      ...recordKeys,
+      ...(Array.isArray(oc(config).whitelist())
+        ? (oc(config).whitelist() as string[])
+        : [])
+    ];
+  }
   return MethodDecoratorFactory.createDecorator<MiddlewareMetadata>(
     MiddlewareBindings.Accessors.MIDDLEWARE_METADATA,
     {
-      blacklist: [],
+      blacklist,
+      middlewareChains,
       whitelist
     }
   );

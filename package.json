@@ -1,6 +1,6 @@
 {
   "name": "lb4-middleware",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "run express middleware in loopback 4",
   "keywords": [
     "lb4-middleware",

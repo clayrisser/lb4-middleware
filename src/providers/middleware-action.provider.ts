@@ -3,11 +3,11 @@ import { inject, Provider, Getter } from '@loopback/context';
 import { oc } from 'ts-optchain.macro';
 import { runMiddleware } from 'middleware-runner';
 import {
-  MiddlewareChains,
   MiddlewareAction,
   MiddlewareBindings,
   MiddlewareConfig,
-  MiddlewareMetadata
+  MiddlewareMetadata,
+  MiddlewareRecord
 } from '../types';
 
 export class MiddlewareActionProvider<Result>
@@ -23,46 +23,55 @@ export class MiddlewareActionProvider<Result>
 
   async action(
     context: RequestContext,
-    middlewareChains: MiddlewareChains,
+    middlewareRecords: MiddlewareRecord[],
     config?: MiddlewareConfig
   ): Promise<Result> {
     const { request, response } = context;
     const middlewareMetadata:
       | MiddlewareMetadata
       | undefined = await this.getMiddlewareMetadata();
-    let filteredMiddlewareChains = filter<MiddlewareChains>(
-      middlewareChains,
-      oc(config).whitelist(),
-      oc(config).blacklist()
+    let filteredMiddlewareRecords = filterRecords<MiddlewareRecord>(
+      middlewareRecords,
+      oc(config).blacklist([]),
+      oc(config).whitelist([])
     );
-    filteredMiddlewareChains = filter<MiddlewareChains>(
-      filteredMiddlewareChains,
-      oc(middlewareMetadata).whitelist(),
-      oc(middlewareMetadata).blacklist()
+    filteredMiddlewareRecords = filterRecords<MiddlewareRecord>(
+      filteredMiddlewareRecords,
+      oc(middlewareMetadata).blacklist([]),
+      oc(middlewareMetadata).whitelist([])
     );
     return runMiddleware(
       request,
       response,
-      Object.entries(filteredMiddlewareChains).map(f => f[1])
+      filteredMiddlewareRecords.map(record => record.chain).flat()
     );
   }
 }
 
-function filter<Data extends { [key: string]: any }>(
-  data: Data,
-  whitelist?: string[],
-  blacklist?: string[]
-): Data {
-  let filteredData = {} as Data;
-  if (blacklist) filteredData = { ...data };
-  (blacklist || []).forEach((blacklistItem: string) => {
-    delete filteredData[blacklistItem];
-  });
+function filterRecords<Record extends MiddlewareRecord>(
+  records: Record[],
+  blacklist: string[],
+  whitelist: string[]
+): Record[] {
+  const recordKeys = new Set(records.map(record => record.keys).flat());
+  let filteredRecordKeys = new Set();
+  if (blacklist) {
+    filteredRecordKeys = new Set(recordKeys);
+    blacklist.forEach((blacklistItem: string) => {
+      filteredRecordKeys.delete(blacklistItem);
+    });
+  }
   (whitelist || []).forEach((whitelistItem: string) => {
-    if (data[whitelistItem]) {
-      // @ts-ignore
-      filteredData[whitelistItem] = data[whitelistItem];
-    }
+    if (recordKeys.has(whitelistItem)) filteredRecordKeys.add(whitelistItem);
   });
-  return filteredData;
+  return records.reduce((filteredRecords: Record[], record: Record) => {
+    for (let i = 0; i < record.keys.length; i++) {
+      const key = record.keys[i];
+      if (filteredRecordKeys.has(key)) {
+        filteredRecords.push(record);
+        return filteredRecords;
+      }
+    }
+    return filteredRecords;
+  }, []);
 }

@@ -8,18 +8,25 @@ export interface MiddlewareConfig {
   whitelist?: string[];
 }
 
-export interface MiddlewareChains {
-  [key: string]: MiddlewareChain;
+export interface MiddlewareDecoratorConfig {
+  blacklist?: string[] | boolean;
+  whitelist?: string[] | boolean;
+}
+
+export interface MiddlewareRecord {
+  keys: string[];
+  chain: MiddlewareChain;
 }
 
 export type MiddlewareAction<Result> = (
   context: RequestContext,
-  middlewareChains: MiddlewareChains,
+  middlewareRecords: MiddlewareRecord[],
   config?: MiddlewareConfig
 ) => Promise<Result>;
 
 export interface MiddlewareMetadata {
   blacklist: string[];
+  middlewareChains: MiddlewareChain[];
   whitelist: string[];
 }
 

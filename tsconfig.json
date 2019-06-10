@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "incremental": true,
-    "lib": ["ES2018", "ESNext.AsyncIterable"],
+    "lib": ["ESNext"],
     "module": "CommonJS",
     "moduleResolution": "Node",
     "outDir": "lib",
