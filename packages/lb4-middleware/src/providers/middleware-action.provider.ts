@@ -34,41 +34,53 @@ export class MiddlewareActionProvider<Result>
         .map(record => record.keys)
         .flat()
     );
-    let filteredRecordKeys = filterRecords(
+    const filteredRecordKeys = getFilteredRecordKeys(
       recordKeys,
-      oc(this.middlewareConfig).blacklist(),
-      oc(this.middlewareConfig).whitelist()
+      this.middlewareConfig,
+      middlewareMetadata
     );
-    filteredRecordKeys = filterRecords(
-      filteredRecordKeys,
-      oc(middlewareMetadata).blacklist([])
+    const filteredMiddlewareRecords: MiddlewareRecord[] = getFilteredRecords(
+      oc(this.middlewareConfig).middlewareRecords([]),
+      filteredRecordKeys
     );
-    filteredRecordKeys = new Set([
-      ...filteredRecordKeys,
-      ...filterRecords(recordKeys, null, oc(middlewareMetadata).whitelist([]))
-    ]);
-    const filteredMiddlewareRecords: MiddlewareRecord[] = oc(
-      this.middlewareConfig
-    )
-      .middlewareRecords([])
-      .reduce(
-        (filteredRecords: MiddlewareRecord[], record: MiddlewareRecord) => {
-          for (let i = 0; i < record.keys.length; i++) {
-            const key = record.keys[i];
-            if (filteredRecordKeys.has(key)) {
-              filteredRecords.push(record);
-              return filteredRecords;
-            }
-          }
-          return filteredRecords;
-        },
-        []
-      );
     return runMiddleware(request, response, [
       ...filteredMiddlewareRecords.map(record => record.chain).flat(),
       ...oc(middlewareMetadata).middlewareChains([])
     ]);
   }
+}
+
+function getFilteredRecordKeys(
+  recordKeys: Set<string>,
+  config: MiddlewareConfig,
+  metadata: MiddlewareMetadata
+): Set<string> {
+  return new Set([
+    ...filterRecords(
+      filterRecords(recordKeys, oc(config).blacklist(), oc(config).whitelist()),
+      oc(metadata).blacklist([])
+    ),
+    ...filterRecords(recordKeys, null, oc(metadata).whitelist([]))
+  ]);
+}
+
+function getFilteredRecords(
+  records: MiddlewareRecord[],
+  recordKeys: Set<string>
+): MiddlewareRecord[] {
+  return records.reduce(
+    (records: MiddlewareRecord[], record: MiddlewareRecord) => {
+      for (let i = 0; i < record.keys.length; i++) {
+        const key = record.keys[i];
+        if (recordKeys.has(key)) {
+          records.push(record);
+          return records;
+        }
+      }
+      return records;
+    },
+    []
+  );
 }
 
 function filterRecords(

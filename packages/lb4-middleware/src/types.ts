@@ -24,9 +24,9 @@ export type MiddlewareAction<Result = any> = (
 ) => Promise<Result>;
 
 export interface MiddlewareMetadata {
-  blacklist: string[];
+  blacklist?: string[] | null;
   middlewareChains: MiddlewareChain[];
-  whitelist: string[];
+  whitelist?: string[] | null;
 }
 
 export const MiddlewareBindings = {

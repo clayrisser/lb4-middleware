@@ -11,8 +11,8 @@ export class MiddlewareConfigProvider implements Provider<MiddlewareConfig> {
         chain: []
       }
     ];
-    const blacklist: string[] | null = null;
-    const whitelist: string[] | null = null;
+    const blacklist = null;
+    const whitelist = null;
     return {
       blacklist,
       middlewareRecords,

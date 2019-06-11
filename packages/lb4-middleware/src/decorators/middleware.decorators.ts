@@ -30,8 +30,8 @@ export function middleware(
       throw new Error("only last param can be 'MiddlewareDecoratorConfig'");
     }
   });
-  let blacklist: string[] = [];
-  let whitelist: string[] = [];
+  let blacklist = null;
+  let whitelist = null;
   if (oc(config).whitelist() === true && oc(config).blacklist() === true) {
     throw new Error("whitelist and blacklist cannot both be 'true'");
   }
@@ -39,11 +39,11 @@ export function middleware(
     blacklist = recordKeys;
     whitelist = Array.isArray(oc(config).whitelist())
       ? (oc(config).whitelist() as string[])
-      : [];
+      : null;
   } else {
     blacklist = Array.isArray(oc(config).blacklist())
       ? (oc(config).blacklist() as string[])
-      : [];
+      : null;
     whitelist = [
       ...recordKeys,
       ...(Array.isArray(oc(config).whitelist())
