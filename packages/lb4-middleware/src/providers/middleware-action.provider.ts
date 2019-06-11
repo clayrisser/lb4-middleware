@@ -28,16 +28,42 @@ export class MiddlewareActionProvider<Result>
     const middlewareMetadata:
       | MiddlewareMetadata
       | undefined = await this.getMiddlewareMetadata();
-    let filteredMiddlewareRecords = filterRecords<MiddlewareRecord>(
-      oc(this.middlewareConfig).middlewareRecords([]),
-      oc(this.middlewareConfig).blacklist([]),
-      oc(this.middlewareConfig).whitelist([])
+    const recordKeys = new Set(
+      oc(this.middlewareConfig)
+        .middlewareRecords([])
+        .map(record => record.keys)
+        .flat()
     );
-    filteredMiddlewareRecords = filterRecords<MiddlewareRecord>(
-      filteredMiddlewareRecords,
-      oc(middlewareMetadata).blacklist([]),
-      oc(middlewareMetadata).whitelist([])
+    let filteredRecordKeys = filterRecords(
+      recordKeys,
+      oc(this.middlewareConfig).blacklist(),
+      oc(this.middlewareConfig).whitelist()
     );
+    filteredRecordKeys = filterRecords(
+      filteredRecordKeys,
+      oc(middlewareMetadata).blacklist([])
+    );
+    filteredRecordKeys = new Set([
+      ...filteredRecordKeys,
+      ...filterRecords(recordKeys, null, oc(middlewareMetadata).whitelist([]))
+    ]);
+    const filteredMiddlewareRecords: MiddlewareRecord[] = oc(
+      this.middlewareConfig
+    )
+      .middlewareRecords([])
+      .reduce(
+        (filteredRecords: MiddlewareRecord[], record: MiddlewareRecord) => {
+          for (let i = 0; i < record.keys.length; i++) {
+            const key = record.keys[i];
+            if (filteredRecordKeys.has(key)) {
+              filteredRecords.push(record);
+              return filteredRecords;
+            }
+          }
+          return filteredRecords;
+        },
+        []
+      );
     return runMiddleware(request, response, [
       ...filteredMiddlewareRecords.map(record => record.chain).flat(),
       ...oc(middlewareMetadata).middlewareChains([])
@@ -45,12 +71,11 @@ export class MiddlewareActionProvider<Result>
   }
 }
 
-function filterRecords<Record extends MiddlewareRecord>(
-  records: Record[],
-  blacklist: string[],
-  whitelist: string[]
-): Record[] {
-  const recordKeys = new Set(records.map(record => record.keys).flat());
+function filterRecords(
+  recordKeys: Set<string>,
+  blacklist?: string[] | null,
+  whitelist?: string[] | null
+): Set<string> {
   let filteredRecordKeys = new Set();
   if (blacklist) {
     filteredRecordKeys = new Set(recordKeys);
@@ -61,14 +86,5 @@ function filterRecords<Record extends MiddlewareRecord>(
   (whitelist || []).forEach((whitelistItem: string) => {
     if (recordKeys.has(whitelistItem)) filteredRecordKeys.add(whitelistItem);
   });
-  return records.reduce((filteredRecords: Record[], record: Record) => {
-    for (let i = 0; i < record.keys.length; i++) {
-      const key = record.keys[i];
-      if (filteredRecordKeys.has(key)) {
-        filteredRecords.push(record);
-        return filteredRecords;
-      }
-    }
-    return filteredRecords;
-  }, []);
+  return recordKeys;
 }

@@ -4,9 +4,9 @@ import { MiddlewareChain, NextFunction } from 'middleware-runner';
 import { RequestContext } from '@loopback/rest';
 
 export interface MiddlewareConfig {
-  blacklist?: string[];
+  blacklist?: string[] | null;
   middlewareRecords?: MiddlewareRecord[];
-  whitelist?: string[];
+  whitelist?: string[] | null;
 }
 
 export interface MiddlewareDecoratorConfig {
