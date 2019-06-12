@@ -23,12 +23,6 @@ export class MiddlewareConfigProvider implements Provider<MiddlewareConfig> {
         ]
       }
     ];
-    const blacklist: string[] = [];
-    const whitelist: string[] = [];
-    return {
-      blacklist,
-      middlewareRecords,
-      whitelist
-    };
+    return { middlewareRecords };
   }
 }

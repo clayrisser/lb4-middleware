@@ -88,7 +88,7 @@ function filterRecords(
   blacklist?: string[] | null,
   whitelist?: string[] | null
 ): Set<string> {
-  let filteredRecordKeys = new Set();
+  let filteredRecordKeys: Set<string> = new Set();
   if (blacklist) {
     filteredRecordKeys = new Set(recordKeys);
     blacklist.forEach((blacklistItem: string) => {
@@ -98,5 +98,5 @@ function filterRecords(
   (whitelist || []).forEach((whitelistItem: string) => {
     if (recordKeys.has(whitelistItem)) filteredRecordKeys.add(whitelistItem);
   });
-  return recordKeys;
+  return filteredRecordKeys;
 }
