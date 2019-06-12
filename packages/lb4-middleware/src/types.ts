@@ -29,24 +29,24 @@ export interface MiddlewareMetadata {
   whitelist?: string[] | null;
 }
 
-export const MiddlewareBindings = {
-  Accessors: {
-    MIDDLEWARE_METADATA: MetadataAccessor.create<
+export namespace MiddlewareBindings {
+  export namespace Accessors {
+    export const MIDDLEWARE_METADATA = MetadataAccessor.create<
       MiddlewareMetadata,
       MethodDecorator
-    >('lb4-middleware.accessors.middleware-metadata')
-  },
-  Providers: {
-    MIDDLEWARE_ACTION: BindingKey.create<MiddlewareAction>(
-      'lb4-middleware.providers.middleware-action'
-    ),
-    MIDDLEWARE_CONFIG: BindingKey.create<MiddlewareConfig>(
-      'lb4-middleware.providers.middleware-config'
-    ),
-    MIDDLEWARE_METADATA: BindingKey.create<MiddlewareMetadata | undefined>(
-      'lb4-middleware.providers.middleware-metadata'
-    )
+    >('lb4-middleware.accessors.middleware-metadata');
   }
-};
+  export namespace Providers {
+    export const MIDDLEWARE_ACTION = BindingKey.create<MiddlewareAction>(
+      'lb4-middleware.providers.middleware-action'
+    );
+    export const MIDDLEWARE_CONFIG = BindingKey.create<MiddlewareConfig>(
+      'lb4-middleware.providers.middleware-config'
+    );
+    export const MIDDLEWARE_METADATA = BindingKey.create<
+      MiddlewareMetadata | undefined
+    >('lb4-middleware.providers.middleware-metadata');
+  }
+}
 
 export { MiddlewareChain, NextFunction };
